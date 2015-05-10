@@ -14,7 +14,9 @@ public interface Annotatable {
 
 	/**
 	 * Produce an undirected edge (an entity pair) between this and another
-	 * entity.
+	 * entity. An edge is represented by an object of type ScorableEntityPair or
+	 * a subclass. These classes define scoring functions for entity similarity
+	 * between this and the other given entity.
 	 * 
 	 * @param <x>
 	 * 

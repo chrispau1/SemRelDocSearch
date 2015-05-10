@@ -12,7 +12,7 @@ import de.paul.docs.AnnotatedDoc;
  * @author Chris
  *
  */
-public abstract class DocumentIndex implements GlobalStatsProvider {
+public abstract class DocumentIndex {
 
 	public abstract <x extends AnnotatedDoc> x getDocument(String docId);
 

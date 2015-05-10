@@ -24,7 +24,6 @@ import cc.mallet.util.Maths;
 import de.paul.corpora.JSONLoader;
 import de.paul.docs.AnnotatedDoc;
 import de.paul.util.Paths;
-import de.paul.util.statistics.NDCGEvaluator;
 
 public class LDA_KL_Scorer extends PairwiseSimScorer<AnnotatedDoc> {
 
@@ -131,36 +130,6 @@ public class LDA_KL_Scorer extends PairwiseSimScorer<AnnotatedDoc> {
 	@Override
 	public AnnotatedDoc createNewDoc(AnnotatedDoc doc) {
 		return new AnnotatedDoc(doc.getText(), doc.getTitle(), doc.getId());
-	}
-
-	@Override
-	protected String evaluateScores(int queryDoc) {
-		String scoreString = "";
-		/*
-		 * get human ranking
-		 */
-		List<AnnotatedDoc> humRanking = getHumanRanking(queryDoc);
-		/*
-		 * get algorithmic rankings
-		 */
-		// evaluate
-		// System.out.println("human Ranking: "
-		// + humRanking.subList(0,
-		// NDCGEvaluator.getRelevantElementsCount(humRanking, 3.0)
-		// * RESULTS_TO_COMPARE_FACTOR));
-		NDCGEvaluator<AnnotatedDoc> evaler = new NDCGEvaluator<AnnotatedDoc>(
-				3.0);
-		for (int i = 0; i < oneDocResults.size(); i++) {
-			// evaluate ranked documents by current metric in comparison to
-			// human evaluation
-			double rankingScore = evaler.evaluateRanking(humRanking,
-					oneDocResults.get(i), RESULTS_TO_COMPARE_FACTOR);
-			// System.out.println(i + "-th AnnSim score: " + rankingScore);
-			scoreString += rankingScore;
-			if (i < oneDocResults.size() - 1)
-				scoreString += ",";
-		}
-		return scoreString;
 	}
 
 	@Override

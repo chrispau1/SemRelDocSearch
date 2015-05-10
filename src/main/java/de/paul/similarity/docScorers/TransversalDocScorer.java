@@ -11,7 +11,6 @@ import de.paul.pairwiseSimilarity.graphs.MWBG_Factory.MWBG_mode;
 import de.paul.pairwiseSimilarity.graphs.SingleEdge_MWBG;
 import de.paul.pairwiseSimilarity.graphs.WeightedBipartiteGraphImpl;
 import de.paul.util.Paths;
-import de.paul.util.statistics.NDCGEvaluator;
 import de.paul.util.statistics.StatUtil;
 
 public class TransversalDocScorer extends
@@ -93,33 +92,6 @@ public class TransversalDocScorer extends
 	protected String writeCSVHeader() {
 
 		return "id,overlap";
-	}
-
-	@Override
-	protected String evaluateScores(int queryDoc) {
-
-		String scoreString = "";
-		/*
-		 * get human ranking
-		 */
-		List<TransversalPerAnnotExpandedDoc> humRanking = getHumanRanking(queryDoc);
-		/*
-		 * get algorithmic rankings
-		 */
-		// evaluate
-		// System.out.println("human Ranking: "
-		// + humRanking.subList(0,
-		// NDCGEvaluator.getRelevantElementsCount(humRanking, 3.0)
-		// * RESULTS_TO_COMPARE_FACTOR));
-		// init evaluator
-		NDCGEvaluator<TransversalPerAnnotExpandedDoc> evaler = new NDCGEvaluator<TransversalPerAnnotExpandedDoc>(
-				3.0);
-		// evaluate ranked documents in comparison to human evaluation
-		double rankingScore = evaler.evaluateRanking(humRanking, oneDocResults
-				.values().iterator().next(), RESULTS_TO_COMPARE_FACTOR);
-		System.out.println("Transversal ranking score: " + rankingScore);
-		scoreString += rankingScore;
-		return scoreString;
 	}
 
 }

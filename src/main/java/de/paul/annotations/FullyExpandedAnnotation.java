@@ -10,10 +10,26 @@ public class FullyExpandedAnnotation extends WeightedAnnotation {
 
 	private AncestorAnnotation ancestors;
 	private NeighborhoodAnnotation neighbors;
+	private CombineMode combineMode = CombineMode.PLUS;
 
+	/**
+	 * Constructor. AncestorAnnotation and NeighborhoodAnnotation need same base
+	 * entity.
+	 * 
+	 * @param ancAnn
+	 * @param neiAnn
+	 * @param combineMode
+	 *            if null is given, it uses default value CombineMode.PLUS
+	 * @throws Exception
+	 *             if entities of transversal and hierarchical annotation are
+	 *             not equal.
+	 */
 	public FullyExpandedAnnotation(AncestorAnnotation ancAnn,
-			NeighborhoodAnnotation neiAnn) throws Exception {
+			NeighborhoodAnnotation neiAnn, CombineMode combineMode)
+			throws Exception {
 		super(ancAnn.getEntity(), ancAnn.getWeight());
+		if (combineMode != null)
+			this.combineMode = combineMode;
 		if (neiAnn != null) {
 			if (!ancAnn.getEntity().equals(neiAnn.getEntity()))
 				throw new Exception(
@@ -36,7 +52,7 @@ public class FullyExpandedAnnotation extends WeightedAnnotation {
 	public ScorableEntityPair createEdge(Annotatable other) {
 
 		return new CombinedEntityPairScorer(this,
-				(FullyExpandedAnnotation) other, CombineMode.PLUS);
+				(FullyExpandedAnnotation) other, combineMode);
 	}
 
 	public NeighborhoodAnnotation getNeighbors() {
@@ -62,5 +78,10 @@ public class FullyExpandedAnnotation extends WeightedAnnotation {
 		String s = "(" + super.toString();
 		return s + ", categories: " + ancestors.toString() + ", neighbors: "
 				+ neighbors.toString() + ")";
+	}
+
+	public void setCombineMode(CombineMode combineMode) {
+
+		this.combineMode = combineMode;
 	}
 }

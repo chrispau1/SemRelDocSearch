@@ -23,10 +23,8 @@ public class CombinedEntityPairScorer implements ScorableEntityPair {
 	// private final double TAXON_VAR = 0.005312166344853058;
 
 	// RADIUS: 2
-	// private final double TRANS_MEAN = 0.02534428849091863;
 	private final double TRANS_MEAN = 0.028002799231326602;
 	private final double TAXON_MEAN = 0.1406030306728683;
-	// private final double TRANS_VAR = 0.00203446062544363;
 	private final double TRANS_VAR = 0.0023979329049633132;
 	private final double TAXON_VAR = 0.005312166344853058;
 
@@ -35,10 +33,6 @@ public class CombinedEntityPairScorer implements ScorableEntityPair {
 	// private final double TAXON_MEAN = 0.1406030306728683;
 	// private final double TRANS_VAR = 0.01441234226547803;
 	// private final double TAXON_VAR = 0.005312166344853058;
-
-	// private static double transSum = 0;
-	// private static double taxonSum = 0;
-	// private static int valCtr = 0;
 
 	public CombinedEntityPairScorer(FullyExpandedAnnotation ann1,
 			FullyExpandedAnnotation ann2, CombineMode combineMode) {

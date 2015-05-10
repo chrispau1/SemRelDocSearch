@@ -8,7 +8,6 @@ import de.paul.corpora.JSONLoader;
 import de.paul.docs.AnnotatedDoc;
 import de.paul.pairwiseSimilarity.ESAPairwiseDocScorer;
 import de.paul.util.Paths;
-import de.paul.util.statistics.NDCGEvaluator;
 
 public class ESADocScorer extends PairwiseSimScorer<AnnotatedDoc> {
 
@@ -63,33 +62,6 @@ public class ESADocScorer extends PairwiseSimScorer<AnnotatedDoc> {
 	public AnnotatedDoc createNewDoc(AnnotatedDoc doc) {
 
 		return new AnnotatedDoc(doc);
-	}
-
-	@Override
-	protected String evaluateScores(int queryDoc) {
-
-		String scoreString = "";
-		/*
-		 * get human ranking
-		 */
-		List<AnnotatedDoc> humRanking = getHumanRanking(queryDoc);
-		/*
-		 * get algorithmic rankings
-		 */
-		// evaluate
-		System.out.println("human Ranking: "
-				+ humRanking.subList(0,
-						NDCGEvaluator.getRelevantElementsCount(humRanking, 3.0)
-								* RESULTS_TO_COMPARE_FACTOR));
-		// init evaluator
-		NDCGEvaluator<AnnotatedDoc> evaler = new NDCGEvaluator<AnnotatedDoc>(
-				3.0);
-		// evaluate ranked documents in comparison to human evaluation
-		double rankingScore = evaler.evaluateRanking(humRanking, oneDocResults
-				.values().iterator().next(), RESULTS_TO_COMPARE_FACTOR);
-		System.out.println("SingleEdge dps ranking score: " + rankingScore);
-		scoreString += rankingScore;
-		return scoreString;
 	}
 
 	@Override

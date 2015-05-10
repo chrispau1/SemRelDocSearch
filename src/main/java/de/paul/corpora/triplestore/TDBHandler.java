@@ -34,6 +34,7 @@ import de.paul.annotations.NeighborhoodAnnotation;
 import de.paul.annotations.WeightedAnnotation;
 import de.paul.corpora.DocumentIndex;
 import de.paul.docs.impl.FullyExpandedDoc;
+import de.paul.pairwiseSimilarity.entityPairScorers.CombinedEntityPairScorer.CombineMode;
 import de.paul.similarity.taxonomic.Category;
 import de.paul.util.Paths;
 
@@ -49,6 +50,7 @@ public class TDBHandler extends DocumentIndex {
 	private static final String HAS_DEPTH = "http://dbpExpandedDocs.org/has_Depth";
 	private static final String HAS_ENTITY_DEPTH = "http://dbpExpandedDocs.org/has_Ent_Depth";
 	private Dataset ds;
+	private CombineMode combineMode = CombineMode.PLUS;
 	private static Map<String, TDBHandler> insts = new HashMap<String, TDBHandler>();
 
 	public static void main(String[] args) {
@@ -75,6 +77,12 @@ public class TDBHandler extends DocumentIndex {
 	private TDBHandler(String storePath) {
 
 		this.ds = TDBFactory.createDataset(storePath);
+	}
+
+	private TDBHandler(String storePath, CombineMode combineMode) {
+
+		this.ds = TDBFactory.createDataset(storePath);
+		this.combineMode = combineMode;
 	}
 
 	public static TDBHandler getInstance(String path) {
@@ -167,7 +175,8 @@ public class TDBHandler extends DocumentIndex {
 			AncestorAnnotation ancAnn = entry.getValue();
 			NeighborhoodAnnotation neiAnn = neighbors.get(entry.getKey());
 			try {
-				annots.add(new FullyExpandedAnnotation(ancAnn, neiAnn));
+				annots.add(new FullyExpandedAnnotation(ancAnn, neiAnn,
+						combineMode));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

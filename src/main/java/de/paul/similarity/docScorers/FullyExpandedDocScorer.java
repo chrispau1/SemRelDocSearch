@@ -12,7 +12,6 @@ import de.paul.pairwiseSimilarity.graphs.MWBG_Factory.MWBG_mode;
 import de.paul.pairwiseSimilarity.graphs.SingleEdge_MWBG;
 import de.paul.pairwiseSimilarity.graphs.WeightedBipartiteGraphImpl;
 import de.paul.util.Paths;
-import de.paul.util.statistics.NDCGEvaluator;
 
 public class FullyExpandedDocScorer extends PairwiseSimScorer<FullyExpandedDoc> {
 
@@ -92,7 +91,7 @@ public class FullyExpandedDocScorer extends PairwiseSimScorer<FullyExpandedDoc> 
 	public FullyExpandedDoc createNewDoc(AnnotatedDoc doc) {
 
 		return new FullyExpandedDoc(doc, EXPANSION_RADIUS, dbpHandler,
-				hierHandler, documentIndex);
+				hierHandler);
 	}
 
 	@Override
@@ -109,36 +108,6 @@ public class FullyExpandedDocScorer extends PairwiseSimScorer<FullyExpandedDoc> 
 		double result = se_MWBG.similarityScore();
 		// System.out.println(result);
 		return result;
-	}
-
-	@Override
-	protected String evaluateScores(int queryDoc) {
-
-		String scoreString = "";
-		/*
-		 * get human ranking
-		 */
-		List<FullyExpandedDoc> humRanking = getHumanRanking(queryDoc);
-		/*
-		 * get algorithmic rankings
-		 */
-		// evaluate
-		// System.out.println("human Ranking: "
-		// + humRanking.subList(0,
-		// NDCGEvaluator.getRelevantElementsCount(humRanking, 3.0)
-		// * RESULTS_TO_COMPARE_FACTOR));
-
-		// init evaluator
-		NDCGEvaluator<FullyExpandedDoc> evaler = new NDCGEvaluator<FullyExpandedDoc>(
-				3.0);
-		// evaluate ranked documents in comparison to human evaluation
-		// use first element of doc results map cause there should only be one
-		// entry
-		double rankingScore = evaler.evaluateRanking(humRanking, oneDocResults
-				.values().iterator().next(), RESULTS_TO_COMPARE_FACTOR);
-		// System.out.println("Combo ranking score: " + rankingScore);
-		scoreString += rankingScore;
-		return scoreString;
 	}
 
 	@Override

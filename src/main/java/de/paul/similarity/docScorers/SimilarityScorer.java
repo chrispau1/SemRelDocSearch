@@ -12,6 +12,7 @@ import de.paul.docs.AnnotatedDoc;
 import de.paul.evaluation.PinCombeEvalHandler;
 import de.paul.util.Paths;
 import de.paul.util.TimeKeeper;
+import de.paul.util.statistics.NDCGEvaluator;
 
 public abstract class SimilarityScorer<x extends AnnotatedDoc> {
 
@@ -122,7 +123,33 @@ public abstract class SimilarityScorer<x extends AnnotatedDoc> {
 		return humRanking;
 	}
 
-	protected abstract String evaluateScores(int queryDoc);
+	protected String evaluateScores(int queryDoc) {
+		String scoreString = "";
+		/*
+		 * get human ranking
+		 */
+		List<x> humRanking = getHumanRanking(queryDoc);
+		/*
+		 * get algorithmic rankings
+		 */
+		// evaluate
+		// System.out.println("human Ranking: "
+		// + humRanking.subList(0,
+		// NDCGEvaluator.getRelevantElementsCount(humRanking, 3.0)
+		// * RESULTS_TO_COMPARE_FACTOR));
+		NDCGEvaluator<x> evaler = new NDCGEvaluator<x>(3.0);
+		for (int i = 0; i < oneDocResults.size(); i++) {
+			// evaluate ranked documents by current metric in comparison to
+			// human evaluation
+			double rankingScore = evaler.evaluateRanking(humRanking,
+					oneDocResults.get(i), RESULTS_TO_COMPARE_FACTOR);
+			// System.out.println(i + "-th AnnSim score: " + rankingScore);
+			scoreString += rankingScore;
+			if (i < oneDocResults.size() - 1)
+				scoreString += ",";
+		}
+		return scoreString;
+	}
 
 	public abstract List<x> getRelatedDocuments(String queryDoc);
 

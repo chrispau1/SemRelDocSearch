@@ -84,8 +84,8 @@ public class DBPediaHandler {
 		FullyExpandedAnnotation e1 = null;
 		FullyExpandedAnnotation e2 = null;
 		try {
-			e1 = new FullyExpandedAnnotation(e1b, e1a);
-			e2 = new FullyExpandedAnnotation(e2b, e2a);
+			e1 = new FullyExpandedAnnotation(e1b, e1a, CombineMode.PLUS);
+			e2 = new FullyExpandedAnnotation(e2b, e2a, CombineMode.PLUS);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

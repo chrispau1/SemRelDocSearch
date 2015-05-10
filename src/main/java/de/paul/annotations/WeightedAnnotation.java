@@ -5,6 +5,12 @@ import java.util.List;
 
 import de.paul.pairwiseSimilarity.entityPairScorers.ScorableEntityPair;
 
+/**
+ * Simple annotation with weight.
+ * 
+ * @author Chris
+ *
+ */
 public class WeightedAnnotation implements Annotatable {
 
 	private static final String annotationDelimiter = ";;;";
@@ -43,6 +49,7 @@ public class WeightedAnnotation implements Annotatable {
 		return this.getEntity().hashCode();
 	}
 
+	@SuppressWarnings("unchecked")
 	public Annotatable copy() {
 
 		return new WeightedAnnotation(entity, weight);

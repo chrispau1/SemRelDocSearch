@@ -1,4 +1,4 @@
-package de.paul.DBPediaSearchExpansion.main;
+package de.paul.RelDocSearch;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -32,7 +32,7 @@ import de.paul.similarity.docScorers.FullyExpandedDocScorer;
 import de.paul.util.Paths;
 import de.paul.util.statistics.NDCGEvaluator;
 
-public class Main {
+public class RelDocSearch {
 
 	private static final String DELIMITER = "	";
 	private static final int EXPANSION_RADIUS = 2;
@@ -42,7 +42,7 @@ public class Main {
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
 
-		Main main = new Main();
+		RelDocSearch main = new RelDocSearch();
 		// main.loadLeeDocuments(2);
 		// main.loadLeePincombeCorpusIntoES();
 		// main.loadDocuments(500, 500, 2, "es_xlime", "news");

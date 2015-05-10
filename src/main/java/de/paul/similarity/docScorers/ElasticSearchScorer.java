@@ -64,40 +64,6 @@ public class ElasticSearchScorer extends SimilarityScorer<AnnotatedDoc> {
 	}
 
 	@Override
-	protected String evaluateScores(int queryDoc) {
-
-		String scoreString = "";
-		/*
-		 * get human ranking
-		 */
-		List<AnnotatedDoc> humRanking = getHumanRanking(queryDoc);
-		/*
-		 * get algorithmic rankings
-		 */
-		// evaluate
-		// System.out.println("human Ranking: "
-		// + humRanking.subList(0,
-		// NDCGEvaluator.getRelevantElementsCount(humRanking, 3.0)
-		// * RESULTS_TO_COMPARE_FACTOR));
-		// init evaluator
-		NDCGEvaluator<AnnotatedDoc> evaler = new NDCGEvaluator<AnnotatedDoc>(
-				3.0);
-		// iterate over different scoring metrics
-		for (int i = 0; i < oneDocResults.size(); i++) {
-			// evaluate ranked documents by current metric in comparison to
-			// human evaluation
-			double rankingScore = evaler.evaluateRanking(humRanking,
-					oneDocResults.get(i), RESULTS_TO_COMPARE_FACTOR);
-			// System.out.println("SingleEdge dps ranking score: " +
-			// rankingScore);
-			scoreString += rankingScore;
-			if (i < oneDocResults.size() - 1)
-				scoreString += ",";
-		}
-		return scoreString;
-	}
-
-	@Override
 	protected void computeRanking(String queryDoc) {
 
 		int resultsToBeReturned = determineResultsCount(queryDoc);

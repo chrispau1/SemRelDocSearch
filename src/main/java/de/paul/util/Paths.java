@@ -30,4 +30,5 @@ public class Paths {
 	public static final String EXP_DOCS_TDB_R = "C:/expDocsTDB/tdb_docs";
 	public static final String EXP_DOCS_TDB_R2 = EXP_DOCS_TDB_R + "2";
 	public static final String EXP_DOCS_TDB_R3 = EXP_DOCS_TDB_R + "3";
+	public static final String TFIDF_RANKING_SCORES = "statistics/rankingScores_TFIDF.csv";
 }

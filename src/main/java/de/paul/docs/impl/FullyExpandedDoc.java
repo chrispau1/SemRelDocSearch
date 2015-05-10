@@ -8,11 +8,11 @@ import de.paul.annotations.AncestorAnnotation;
 import de.paul.annotations.Annotatable;
 import de.paul.annotations.FullyExpandedAnnotation;
 import de.paul.annotations.NeighborhoodAnnotation;
-import de.paul.corpora.GlobalStatsProvider;
 import de.paul.dbpedia.DBPediaHandler;
 import de.paul.dbpedia.categories.HierarchyHandler;
 import de.paul.docs.AnnotatedDoc;
 import de.paul.docs.ElasticSearchSerializableDoc;
+import de.paul.pairwiseSimilarity.entityPairScorers.CombinedEntityPairScorer.CombineMode;
 import de.paul.similarity.taxonomic.Category;
 import de.paul.util.MapUtil;
 import de.paul.util.SumMap;
@@ -24,6 +24,7 @@ public class FullyExpandedDoc extends TaxonomicExpandedDoc implements
 	// Category hierarchy has depth 15
 	private static final int MAX_HIERARCHY_DEPTH = 15;
 	private HashMap<String, String> fieldMap = null;
+	private CombineMode combineMode = CombineMode.PLUS;
 
 	public FullyExpandedDoc(FullyExpandedDoc copy) {
 
@@ -31,14 +32,17 @@ public class FullyExpandedDoc extends TaxonomicExpandedDoc implements
 	}
 
 	public FullyExpandedDoc(AnnotatedDoc doc, int expansion_radius,
-			DBPediaHandler dbpHandler, HierarchyHandler hierHandler,
-			GlobalStatsProvider globalStatsProvider) {
+			DBPediaHandler dbpHandler, HierarchyHandler hierHandler) {
 
 		// super constructor creates taxonomical annotations and adds them.
 		// adding is overwritten though (addAnnotation) such that a fully
 		// expanded
 		// annotation is added, with the transversal part set to NULL
-		super(doc, dbpHandler, hierHandler, globalStatsProvider);
+		super(doc, dbpHandler, hierHandler);
+		addTransversal(expansion_radius, dbpHandler);
+	}
+
+	private void addTransversal(int expansion_radius, DBPediaHandler dbpHandler) {
 		// add transversal part
 		for (Annotatable ann : annotations) {
 			String ent = ann.getEntity();
@@ -50,8 +54,18 @@ public class FullyExpandedDoc extends TaxonomicExpandedDoc implements
 			long t2 = System.currentTimeMillis();
 			// System.out.println((t2 - t1));
 			// set neighborhood annotation
+			((FullyExpandedAnnotation) ann).setCombineMode(combineMode);
 			((FullyExpandedAnnotation) ann).setNeighbors(neighAnn);
 		}
+	}
+
+	public FullyExpandedDoc(AnnotatedDoc doc, int expansion_radius,
+			DBPediaHandler dbpHandler, HierarchyHandler hierHandler,
+			CombineMode combineMode) {
+
+		super(doc, dbpHandler, hierHandler);
+		this.combineMode = combineMode;
+		addTransversal(expansion_radius, dbpHandler);
 	}
 
 	public FullyExpandedDoc(String docId, String title, String text,
@@ -66,7 +80,7 @@ public class FullyExpandedDoc extends TaxonomicExpandedDoc implements
 			FullyExpandedAnnotation fullAnnot = null;
 			try {
 				fullAnnot = new FullyExpandedAnnotation(
-						(AncestorAnnotation) ann, null);
+						(AncestorAnnotation) ann, null, combineMode);
 			} catch (Exception e) {
 				// can't be thrown here.
 				e.printStackTrace();
