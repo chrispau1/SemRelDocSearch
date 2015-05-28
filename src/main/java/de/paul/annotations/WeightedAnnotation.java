@@ -3,7 +3,7 @@ package de.paul.annotations;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.paul.pairwiseSimilarity.entityPairScorers.ScorableEntityPair;
+import de.paul.similarity.entityScorers.ScorableEntityPair;
 
 /**
  * Simple annotation with weight.

@@ -3,7 +3,7 @@ package de.paul.annotations;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.paul.dbpedia.DBPediaHandler;
+import de.paul.kb.dbpedia.DBPediaHandler;
 
 public class NormalizedNeighborhoodAnnotation extends NeighborhoodAnnotation {
 

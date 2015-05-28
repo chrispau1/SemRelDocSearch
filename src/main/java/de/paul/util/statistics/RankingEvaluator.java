@@ -2,7 +2,7 @@ package de.paul.util.statistics;
 
 import java.util.List;
 
-import de.paul.docs.RankableDoc;
+import de.paul.documents.RankableDoc;
 
 public interface RankingEvaluator<x extends RankableDoc> {
 

@@ -2,7 +2,7 @@ package de.paul.annotations;
 
 import org.json.JSONObject;
 
-import de.paul.pairwiseSimilarity.entityPairScorers.ScorableEntityPair;
+import de.paul.similarity.entityScorers.ScorableEntityPair;
 
 /**
  * Encapsulates annotation name and annotation weight as a JSONObject for simple

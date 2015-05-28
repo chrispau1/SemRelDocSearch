@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.paul.dbpedia.DBPediaHandler;
-import de.paul.docs.AnnotatedDoc;
-import de.paul.pairwiseSimilarity.entityPairScorers.ScorableEntityPair;
-import de.paul.pairwiseSimilarity.entityPairScorers.WeightedOverlapEntityPair;
+import de.paul.documents.AnnotatedDoc;
+import de.paul.kb.dbpedia.DBPediaHandler;
+import de.paul.similarity.entityScorers.TransversalEntityPairScorer;
+import de.paul.similarity.entityScorers.WeightedOverlapEntityPair;
 
 public class NeighborhoodAnnotation extends WeightedAnnotation {
 
@@ -217,7 +217,7 @@ public class NeighborhoodAnnotation extends WeightedAnnotation {
 		return new NeighborhoodAnnotation(this);
 	}
 
-	public ScorableEntityPair createEdge(Annotatable other) {
+	public TransversalEntityPairScorer createEdge(Annotatable other) {
 
 		// return new KatzEntityPairSubgraph(this, (NeighborhoodAnnotation)
 		// other);

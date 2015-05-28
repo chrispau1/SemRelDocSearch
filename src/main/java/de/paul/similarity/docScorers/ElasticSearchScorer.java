@@ -3,29 +3,23 @@ package de.paul.similarity.docScorers;
 import java.util.HashMap;
 import java.util.List;
 
-import de.paul.corpora.elasticsearch.ESHandler;
-import de.paul.docs.AnnotatedDoc;
-import de.paul.docs.RankableDoc;
-import de.paul.docs.impl.FullyExpandedDoc;
-import de.paul.util.Paths;
-import de.paul.util.statistics.NDCGEvaluator;
+import de.paul.db.elasticsearch.ESHandler;
+import de.paul.documents.AnnotatedDoc;
+import de.paul.documents.RankableDoc;
+import de.paul.documents.impl.SemanticallyExpandedDoc;
 
-public class ElasticSearchScorer extends SimilarityScorer<AnnotatedDoc> {
+public class ElasticSearchScorer extends InvertedIndexDocScorer<AnnotatedDoc> {
 
 	private static final int DOC_COUNT = 50;
-	private int resultsCount = -1;
 
-	public ElasticSearchScorer(String rankingCSVPath, String idxName,
-			String docType) {
+	public ElasticSearchScorer(String idxName, String docType) {
 
-		super(rankingCSVPath);
 		documentIndex = ESHandler.getInstance(idxName, docType);
 	}
 
-	public ElasticSearchScorer(String rankingCSVPath, String idxName,
-			String docType, int fixedNumberOfResults) {
+	public ElasticSearchScorer(String idxName, String docType,
+			int fixedNumberOfResults) {
 
-		super(rankingCSVPath);
 		documentIndex = ESHandler.getInstance(idxName, docType);
 		this.resultsCount = fixedNumberOfResults;
 	}
@@ -36,11 +30,10 @@ public class ElasticSearchScorer extends SimilarityScorer<AnnotatedDoc> {
 		String docType = "news";
 		// String idxName = "es_xlime";
 		// String docType = "semExp";
-		ElasticSearchScorer scorer = new ElasticSearchScorer(
-				Paths.ES_RANKING_SCORES, idxName, docType);
+		ElasticSearchScorer scorer = new ElasticSearchScorer(idxName, docType);
 		try {
 			System.out.println("transverse, hierarchical, text, combo");
-			System.out.println(scorer.csvAllRankingScores());
+			// System.out.println(scorer.csvAllRankingScores());
 		} finally {
 			scorer.close();
 		}
@@ -58,13 +51,13 @@ public class ElasticSearchScorer extends SimilarityScorer<AnnotatedDoc> {
 		return document;
 	}
 
-	public FullyExpandedDoc createNewDoc(AnnotatedDoc doc) {
+	public SemanticallyExpandedDoc createNewDoc(AnnotatedDoc doc) {
 
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	protected void computeRanking(String queryDoc) {
+	public void computeRankingForVariations(String queryDoc) {
 
 		int resultsToBeReturned = determineResultsCount(queryDoc);
 		List<AnnotatedDoc> traverse = ((ESHandler) documentIndex)
@@ -75,11 +68,11 @@ public class ElasticSearchScorer extends SimilarityScorer<AnnotatedDoc> {
 				queryDoc, resultsToBeReturned);
 		List<AnnotatedDoc> combo = ((ESHandler) documentIndex)
 				.combinationSearch(queryDoc, resultsToBeReturned);
-		oneDocResults = new HashMap<Integer, List<AnnotatedDoc>>();
-		oneDocResults.put(0, traverse);
-		oneDocResults.put(1, hierarchical);
-		oneDocResults.put(2, text);
-		oneDocResults.put(3, combo);
+		rankingsPerVariation = new HashMap<Integer, List<AnnotatedDoc>>();
+		getRankingsPerVariation().put(0, traverse);
+		getRankingsPerVariation().put(1, hierarchical);
+		getRankingsPerVariation().put(2, text);
+		getRankingsPerVariation().put(3, combo);
 	}
 
 	/*
@@ -90,27 +83,29 @@ public class ElasticSearchScorer extends SimilarityScorer<AnnotatedDoc> {
 		int resultsToBeReturned;
 
 		if (resultsCount == -1) {
-			List<AnnotatedDoc> humRanks = getHumanRanking(Integer
-					.parseInt(queryDoc));
-			/*
-			 * For now, added factor such that more (i.e., at least enough)
-			 * elements get returned than get compared in the end
-			 */
-			resultsToBeReturned = RESULTS_TO_COMPARE_FACTOR
-					* NDCGEvaluator.getRelevantElementsCount(humRanks, 3.0) * 2;
+			// simplified
+			resultsToBeReturned = getDocCount();
+			// List<AnnotatedDoc> humRanks = getHumanRanking(Integer
+			// .parseInt(queryDoc));
+			// /*
+			// * For now, added factor such that more (i.e., at least enough)
+			// * elements get returned than get compared in the end
+			// */
+			// resultsToBeReturned = RESULTS_TO_COMPARE_FACTOR
+			// * NDCGEvaluator.getRelevantElementsCount(humRanks, 3.0) * 2;
 		} else
 			resultsToBeReturned = this.resultsCount;
 		return resultsToBeReturned;
 	}
 
 	@Override
-	protected String writeCSVHeader() {
+	public String writeCSVHeader() {
 
 		return "id,traversal,hierarchical,text,evenCombo\n";
 	}
 
 	@Override
-	protected int getDocCount() {
+	public int getDocCount() {
 
 		return DOC_COUNT;
 	}

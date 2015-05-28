@@ -1,6 +1,6 @@
 package de.paul.annotations;
 
-import de.paul.pairwiseSimilarity.entityPairScorers.ScorableEntityPair;
+import de.paul.similarity.entityScorers.ScorableEntityPair;
 
 public interface Annotatable {
 

@@ -4,25 +4,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.paul.corpora.JSONLoader;
-import de.paul.docs.AnnotatedDoc;
+import de.paul.db.JSONDocSourceLoader;
+import de.paul.documents.AnnotatedDoc;
 import de.paul.util.FeatureExtractor;
 import de.paul.util.Paths;
 import de.paul.util.statistics.CosineSimilarity;
 
-public class TFIDFScorer extends PairwiseSimScorer<AnnotatedDoc> {
+public class TFIDFScorer extends PairwiseDocScorer<AnnotatedDoc> {
 
 	private Map<String, HashMap<String, Double>> docVecMap = new HashMap<String, HashMap<String, Double>>();
 	private FeatureExtractor featureExtractor;
 
 	public static void main(String[] args) {
 		TFIDFScorer scorer = new TFIDFScorer();
-		JSONLoader jsonParser = new JSONLoader(Paths.PINCOMBE_ANNOTATED_JSON);
+		JSONDocSourceLoader jsonParser = new JSONDocSourceLoader(Paths.LEE_ANNOTATED_JSON);
 		List<AnnotatedDoc> docs = jsonParser.getAllDocs();
 		scorer.expandAndSetCorpus(docs);
+		// needs extra initialization
 		scorer.createFeatureExtractor();
-		System.out.println(scorer
-				.completePairwisePearsonScore("statistics/pairs.csv"));
+		// System.out.println(scorer
+		// .completePairwisePearsonScore("statistics/pairs.csv"));
 	}
 
 	private void createFeatureExtractor() {
@@ -33,10 +34,6 @@ public class TFIDFScorer extends PairwiseSimScorer<AnnotatedDoc> {
 					documentIndex.getDocument(Integer.toString(i)).getText());
 		featureExtractor = new FeatureExtractor(input, true, true, true);
 		docVecMap = featureExtractor.getTfidf();
-	}
-
-	public TFIDFScorer() {
-		super(Paths.TFIDF_RANKING_SCORES);
 	}
 
 	@Override
@@ -54,7 +51,7 @@ public class TFIDFScorer extends PairwiseSimScorer<AnnotatedDoc> {
 	}
 
 	@Override
-	protected String writeCSVHeader() {
+	public String writeCSVHeader() {
 		return "id,tfidf";
 	}
 

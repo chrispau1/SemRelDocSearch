@@ -1,60 +1,24 @@
 package de.paul.similarity.docScorers;
 
-import java.util.List;
-
-import de.paul.corpora.JSONLoader;
-import de.paul.dbpedia.DBPediaHandler;
-import de.paul.docs.AnnotatedDoc;
-import de.paul.docs.impl.TransversalPerAnnotExpandedDoc;
-import de.paul.pairwiseSimilarity.graphs.MWBG_Factory;
-import de.paul.pairwiseSimilarity.graphs.MWBG_Factory.MWBG_mode;
-import de.paul.pairwiseSimilarity.graphs.SingleEdge_MWBG;
-import de.paul.pairwiseSimilarity.graphs.WeightedBipartiteGraphImpl;
-import de.paul.util.Paths;
+import de.paul.documents.AnnotatedDoc;
+import de.paul.documents.impl.TransversalExpandedDoc;
+import de.paul.similarity.bipartiteGraphs.SingleEdge_MWBG;
+import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraph;
+import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraph.MWBG_mode;
+import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraphImpl;
 import de.paul.util.statistics.StatUtil;
 
 public class TransversalDocScorer extends
-		PairwiseSimScorer<TransversalPerAnnotExpandedDoc> {
-
-	private DBPediaHandler dbpHandler;
+		KnowledgeBasedDocScorers<TransversalExpandedDoc> {
 
 	private StatUtil meanMachine;
 
 	private static final int EXPAND_RADIUS = 2; // best: 2
 
-	public TransversalDocScorer(String rankingsCSVPath) {
-		super(rankingsCSVPath);
+	public TransversalDocScorer() {
 		// objects used for new doc creation
-		dbpHandler = DBPediaHandler.getInstance(Paths.TDB_DBPEDIA);
+		super();
 		meanMachine = new StatUtil();
-	}
-
-	// public static void main(String[] args) {
-	//
-	// TransversalDocScorer scorer = new TransversalDocScorer(
-	// Paths.TRANSVERSAL_RANKING_SCORES);
-	// System.out.println("Loading and expanding documents...");
-	//
-	// JSONLoader jsonParser = new JSONLoader(Paths.PINCOMBE_ANNOTATED_JSON);
-	// List<AnnotatedDoc> docs = jsonParser.getAllDocs();
-	// scorer.setCorpus(docs);
-	// System.out.println("Computing similarity / rankings...");
-	// // TransversalPerAnnotExpandedDoc doc1 = pincombeIndex.getDocument(39);
-	// // TransversalPerAnnotExpandedDoc doc2 = pincombeIndex.getDocument(42);
-	// // double score = scorer.score(doc1, doc2);
-	// // System.out.println(score);
-	// // System.out.println(scorer.csvRankingScore(39));
-	// System.out.println(scorer.csvAllRankingScores());
-	// }
-	public static void main(String[] args) {
-		TransversalDocScorer transScorer = new TransversalDocScorer(
-				Paths.TRANSVERSAL_RANKING_SCORES);
-		JSONLoader jsonParser = new JSONLoader(Paths.PINCOMBE_ANNOTATED_JSON);
-		List<AnnotatedDoc> docs = jsonParser.getAllDocs();
-		transScorer.expandAndSetCorpus(docs);
-		System.out.println(transScorer
-				.completePairwisePearsonScore("statistics/pairs.csv"));
-		transScorer.printMeanAndVariance();
 	}
 
 	public void printMeanAndVariance() {
@@ -64,22 +28,20 @@ public class TransversalDocScorer extends
 				+ meanMachine.getVariance(mean));
 	}
 
-	public TransversalPerAnnotExpandedDoc createNewDoc(AnnotatedDoc doc) {
+	public TransversalExpandedDoc createNewDoc(AnnotatedDoc doc) {
 
-		return new TransversalPerAnnotExpandedDoc(doc, dbpHandler,
-				EXPAND_RADIUS);
+		return new TransversalExpandedDoc(doc, dbpHandler, EXPAND_RADIUS);
 	}
 
 	@Override
-	public double score(TransversalPerAnnotExpandedDoc doc1,
-			TransversalPerAnnotExpandedDoc doc2) {
+	public double score(TransversalExpandedDoc doc1, TransversalExpandedDoc doc2) {
 
 		WeightedBipartiteGraphImpl bipartiteGraph = new WeightedBipartiteGraphImpl(
 				doc1, doc2);
 		// print matrix
 		// printPairwiseEntityScoreMatrix(bipartiteGraph);
 		// do scoring
-		MWBG_Factory.mwbgMode = MWBG_mode.SingleEdge;
+		WeightedBipartiteGraph.mwbg_mode = MWBG_mode.SingleEdge;
 		SingleEdge_MWBG se_MWBG = bipartiteGraph.findSingleEdgeMaximumWeight();
 		double result = se_MWBG.similarityScore();
 		// double result = bipartiteGraph.similarityScore();
@@ -89,7 +51,7 @@ public class TransversalDocScorer extends
 	}
 
 	@Override
-	protected String writeCSVHeader() {
+	public String writeCSVHeader() {
 
 		return "id,overlap";
 	}

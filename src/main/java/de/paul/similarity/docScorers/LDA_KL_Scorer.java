@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import cc.mallet.pipe.CharSequence2TokenSequence;
@@ -21,18 +20,25 @@ import cc.mallet.pipe.iterator.CsvIterator;
 import cc.mallet.topics.ParallelTopicModel;
 import cc.mallet.types.InstanceList;
 import cc.mallet.util.Maths;
-import de.paul.corpora.JSONLoader;
-import de.paul.docs.AnnotatedDoc;
-import de.paul.util.Paths;
+import de.paul.documents.AnnotatedDoc;
 
-public class LDA_KL_Scorer extends PairwiseSimScorer<AnnotatedDoc> {
+public class LDA_KL_Scorer extends PairwiseDocScorer<AnnotatedDoc> {
 
 	private ParallelTopicModel model;
 
 	public LDA_KL_Scorer(int numTopics, InstanceList instances,
-			int numIterations) {
+			int numIterations, String corpusTxtPath) {
 
-		super(Paths.LDA_KL_RANKING_SCORES);
+		if (instances == null) {
+			try {
+				instances = createInstances(corpusTxtPath);
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+
 		// double alpha = 1.0;
 		double alpha = 1.0;// 50.0 / numTopics;
 		double beta = 0.1;
@@ -55,8 +61,16 @@ public class LDA_KL_Scorer extends PairwiseSimScorer<AnnotatedDoc> {
 		}
 	}
 
-	public static void main(String[] args) throws UnsupportedEncodingException,
-			FileNotFoundException {
+	/**
+	 * Generates instances in the Mallet format from corpus text file
+	 * 
+	 * @param corpusTxtPath
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws FileNotFoundException
+	 */
+	public static InstanceList createInstances(String corpusTxtPath)
+			throws UnsupportedEncodingException, FileNotFoundException {
 
 		// Begin by importing documents from text to feature sequences
 		ArrayList<Pipe> pipeList = new ArrayList<Pipe>();
@@ -73,49 +87,56 @@ public class LDA_KL_Scorer extends PairwiseSimScorer<AnnotatedDoc> {
 		InstanceList instances = new InstanceList(new SerialPipes(pipeList));
 
 		Reader fileReader = new InputStreamReader(new FileInputStream(new File(
-				"text_output_data/MalletCorpus.txt")), "UTF-8");
+				corpusTxtPath)), "UTF-8");
 		instances.addThruPipe(new CsvIterator(fileReader, Pattern
 				.compile("^(\\S*)[\\s,]*(\\S*)[\\s,]*(.*)$"), 3, 2, 1)); // data,
 																			// label,
 																			// name
 																			// fields
+		return instances;
+	}
+
+	public static void main(String[] args) throws UnsupportedEncodingException,
+			FileNotFoundException {
 
 		// Create a model with 100 topics, alpha_t = 0.01, beta_w = 0.01
 		// Note that the first parameter is passed as the sum over topics, while
 		// the second is numTopics: 30 50 100 200
-		LDA_KL_Scorer ldaScorer = null;
-
-		StringBuilder sb = new StringBuilder();
-
-		int[] numTopics = new int[] { 50 };
-		int[] numIterations = new int[] { 1000 };
-		// int[] numTopics = new int[] { 30, 50, 100, 200 };
-		// int[] numIterations = new int[] { 50, 100, 500, 1000 };
-		for (int i = 0; i < numTopics.length; i++) {
-			for (int j = 0; j < numIterations.length; j++) {
-				ldaScorer = new LDA_KL_Scorer(numTopics[i], instances,
-						numIterations[j]);
-				/*
-				 * import documents in memory-based index
-				 */
-
-				JSONLoader jsonParser = new JSONLoader(
-						Paths.PINCOMBE_ANNOTATED_JSON);
-				List<AnnotatedDoc> docs = jsonParser.getAllDocs();
-				ldaScorer.expandAndSetCorpus(docs);
-				// sb.append(numTopics[i] + ", " + numIterations[j] + ": "
-				// + ldaScorer.csvAllRankingScores() + "\n");
-
-				sb.append(numTopics[i]
-						+ ", "
-						+ numIterations[j]
-						+ ": "
-						+ ldaScorer
-								.completePairwisePearsonScore("statistics/pairs.csv")
-						+ "\n");
-			}
-		}
-		System.out.println(sb.toString());
+		// LDA_KL_Scorer ldaScorer = null;
+		//
+		// InstanceList instances = LDA_KL_Scorer
+		// .createInstances(Paths.MALLET_CORPUS_TXT);
+		//
+		// StringBuilder sb = new StringBuilder();
+		//
+		// int[] numTopics = new int[] { 50 };
+		// int[] numIterations = new int[] { 1000 };
+		// // int[] numTopics = new int[] { 30, 50, 100, 200 };
+		// // int[] numIterations = new int[] { 50, 100, 500, 1000 };
+		// for (int i = 0; i < numTopics.length; i++) {
+		// for (int j = 0; j < numIterations.length; j++) {
+		// ldaScorer = new LDA_KL_Scorer(numTopics[i], instances,
+		// numIterations[j], Paths.MALLET_CORPUS_TXT);
+		// /*
+		// * import documents in memory-based index
+		// */
+		//
+		// JSONLoader jsonParser = new JSONLoader(Paths.LEE_ANNOTATED_JSON);
+		// List<AnnotatedDoc> docs = jsonParser.getAllDocs();
+		// ldaScorer.expandAndSetCorpus(docs);
+		// // sb.append(numTopics[i] + ", " + numIterations[j] + ": "
+		// // + ldaScorer.csvAllRankingScores() + "\n");
+		//
+		// sb.append(numTopics[i]
+		// + ", "
+		// + numIterations[j]
+		// + ": "
+		// + ldaScorer
+		// .completePairwisePearsonScore("statistics/pairs.csv")
+		// + "\n");
+		// }
+		// }
+		// System.out.println(sb.toString());
 	}
 
 	@Override
@@ -133,7 +154,7 @@ public class LDA_KL_Scorer extends PairwiseSimScorer<AnnotatedDoc> {
 	}
 
 	@Override
-	protected String writeCSVHeader() {
+	public String writeCSVHeader() {
 		return "id,lda_kl";
 	}
 

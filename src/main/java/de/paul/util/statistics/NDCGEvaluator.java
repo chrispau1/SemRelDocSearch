@@ -3,7 +3,7 @@ package de.paul.util.statistics;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.paul.docs.RankableDoc;
+import de.paul.documents.RankableDoc;
 
 public class NDCGEvaluator<x extends RankableDoc> implements
 		RankingEvaluator<x> {

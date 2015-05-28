@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.paul.dbpedia.DBPediaHandler;
-import de.paul.dbpedia.categories.HierarchyHandler;
-import de.paul.pairwiseSimilarity.entityPairScorers.CommonAncestor;
-import de.paul.pairwiseSimilarity.entityPairScorers.ScorableEntityPair;
-import de.paul.similarity.taxonomic.Category;
+import de.paul.kb.dbpedia.DBPediaHandler;
+import de.paul.kb.dbpedia.categories.WikiCatHierarchyHandler;
+import de.paul.similarity.entityScorers.CommonAncestor;
+import de.paul.similarity.entityScorers.LCAScorer;
+import de.paul.similarity.entityScorers.TaxonomicEntityPairScorer;
 
 public class AncestorAnnotation extends WeightedAnnotation {
 
@@ -28,7 +28,7 @@ public class AncestorAnnotation extends WeightedAnnotation {
 	}
 
 	public AncestorAnnotation(String entName, double entWeight,
-			DBPediaHandler dbpHandler, HierarchyHandler hierHandler) {
+			DBPediaHandler dbpHandler, WikiCatHierarchyHandler hierHandler) {
 
 		super(entName, entWeight);
 		// get categories
@@ -110,8 +110,9 @@ public class AncestorAnnotation extends WeightedAnnotation {
 		return res;
 	}
 
-	public ScorableEntityPair createEdge(Annotatable other) {
+	public TaxonomicEntityPairScorer createEdge(Annotatable other) {
 
-		return this.lowestCommonAncestor((AncestorAnnotation) other);
+		// return this.lowestCommonAncestor((AncestorAnnotation) other);
+		return new LCAScorer(this, (AncestorAnnotation) other);
 	}
 }
