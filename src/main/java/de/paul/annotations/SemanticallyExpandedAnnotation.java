@@ -4,13 +4,13 @@ import java.util.HashSet;
 
 import de.paul.similarity.entityScorers.CombinedEntityPairScorer;
 import de.paul.similarity.entityScorers.ScorableEntityPair;
-import de.paul.similarity.entityScorers.CombinedEntityPairScorer.CombineMode;
+import de.paul.util.CombineMode;
 
 public class SemanticallyExpandedAnnotation extends WeightedAnnotation {
 
 	private AncestorAnnotation ancestors;
 	private NeighborhoodAnnotation neighbors;
-	private CombineMode combineMode = CombineMode.PLUS;
+	private de.paul.util.CombineMode combineMode = CombineMode.PLUS;
 
 	/**
 	 * Constructor. AncestorAnnotation and NeighborhoodAnnotation need same base

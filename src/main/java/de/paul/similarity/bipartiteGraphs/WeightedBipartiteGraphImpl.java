@@ -39,7 +39,7 @@ public class WeightedBipartiteGraphImpl extends WeightedBipartiteGraph {
 				ScorableEntityPair edge = annot1.createEdge(annot2);
 				// add to edges of bipartite graph
 				if (edge != null)
-					this.addMatching(edge);
+					this.addEdge(edge);
 			}
 		}
 	}
@@ -51,9 +51,9 @@ public class WeightedBipartiteGraphImpl extends WeightedBipartiteGraph {
 	 * 
 	 * @return
 	 */
-	public SingleEdge_MWBG findSingleEdgeMaximumWeight() {
+	public SingleEdge_MaxGraph computeMaxGraph() {
 
-		SingleEdge_MWBG subgraph = WeightedBipartiteGraph.produce_MWBG(
+		SingleEdge_MaxGraph subgraph = WeightedBipartiteGraph.produce_WBG(
 				this.doc1, this.doc2);
 		// objects to keep track of maximums
 		Map<String, Double> maxima1 = new HashMap<String, Double>();
@@ -63,8 +63,8 @@ public class WeightedBipartiteGraphImpl extends WeightedBipartiteGraph {
 		/*
 		 * find maximum outgoing edges for each node
 		 */
-		if (matchings != null) {
-			for (ScorableEntityPair m : matchings) {
+		if (edges != null) {
+			for (ScorableEntityPair m : edges) {
 
 				String ent1Name = m.getEntityName();
 				String ent2Name = m.getEntity2Name();
@@ -90,12 +90,12 @@ public class WeightedBipartiteGraphImpl extends WeightedBipartiteGraph {
 			 */
 			for (ScorableEntityPair m : maxMatchings1.values()) {
 				m.setLeft();
-				subgraph.addMatching(m);
+				subgraph.addEdge(m);
 				// System.out.println("1 : " + m);
 			}
 			for (ScorableEntityPair m : maxMatchings2.values()) {
 				m.setRight();
-				subgraph.addMatching(m);
+				subgraph.addEdge(m);
 				// System.out.println("2 : " + m);
 			}
 			// System.out.println("");
@@ -109,7 +109,7 @@ public class WeightedBipartiteGraphImpl extends WeightedBipartiteGraph {
 	 * 
 	 * @return
 	 */
-	public IndependentEdge_MWBG findIndependentEdgeMaximumWeightBG() {
+	public IndependentEdge_MaxGraph findIndependentEdgeMaximumWeightBG() {
 
 		return null;
 	}

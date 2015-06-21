@@ -1,15 +1,15 @@
-package de.paul.corpus.evaluation;
+package de.paul.evaluation.corpora;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public abstract class EvalHandler {
+public abstract class CorpusEvalHandler {
 
 	protected String path;
 	protected DocSim[] docSims = null;
 
-	public void loadRows() throws IOException {
+	protected void loadRows() throws IOException {
 
 		docSims = new DocSim[getDocCount()];
 		BufferedReader br = null;

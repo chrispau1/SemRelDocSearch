@@ -1,4 +1,4 @@
-package de.paul.corpus.evaluation;
+package de.paul.evaluation.corpora;
 
 import java.util.HashMap;
 import java.util.LinkedList;

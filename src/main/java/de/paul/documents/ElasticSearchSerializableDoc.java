@@ -11,6 +11,8 @@ import java.util.Map;
  */
 public interface ElasticSearchSerializableDoc extends AnnotatableDocument {
 
+	static final int ES_WORD_STRETCH_FACTOR = 50;
+
 	public Map<String, String> getElasticSearchFields();
 
 	public String getElasticSearchField(String key);

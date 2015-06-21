@@ -8,9 +8,9 @@ import de.paul.similarity.entityScorers.ScorableEntityPair;
  * @author Chris
  *
  */
-public class IndependentEdge_MWBG extends WeightedBipartiteGraph {
+public class IndependentEdge_MaxGraph extends WeightedBipartiteGraph {
 
-	public IndependentEdge_MWBG(int annotCount1, int annotCount2) {
+	public IndependentEdge_MaxGraph(int annotCount1, int annotCount2) {
 
 		this.annotCount1 = annotCount1;
 		this.annotCount2 = annotCount2;
@@ -23,7 +23,7 @@ public class IndependentEdge_MWBG extends WeightedBipartiteGraph {
 
 		// 2* sum over all edges
 		double numerator = 0;
-		for (ScorableEntityPair edge : matchings) {
+		for (ScorableEntityPair edge : edges) {
 			numerator += 2 * edge.score();
 		}
 		double denominator = annotCount1 + annotCount2;

@@ -7,14 +7,14 @@ import java.util.List;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
-import de.paul.corpus.evaluation.EvalHandler;
-import de.paul.corpus.evaluation.LeeEvalHandler;
 import de.paul.db.JSONDocSourceLoader;
 import de.paul.documents.AnnotatedDoc;
 import de.paul.documents.impl.DocPair;
 import de.paul.documents.impl.SemanticallyExpandedDoc;
-import de.paul.similarity.docScorers.SemanticallyExpandedDocScorer;
+import de.paul.evaluation.corpora.CorpusEvalHandler;
+import de.paul.evaluation.corpora.LeeEvalHandler;
 import de.paul.similarity.docScorers.PairwiseDocScorer;
+import de.paul.similarity.docScorers.SemanticallyExpandedDocScorer;
 import de.paul.util.Paths;
 
 public class PairwiseDocScorerEvaluator<x extends AnnotatedDoc> extends
@@ -22,27 +22,38 @@ public class PairwiseDocScorerEvaluator<x extends AnnotatedDoc> extends
 
 	public static void main(String[] args) {
 
-		SemanticallyExpandedDocScorer comboScorer = new SemanticallyExpandedDocScorer();
+		SemanticallyExpandedDocScorer scorer = new SemanticallyExpandedDocScorer(
+				2, null, null);
+		// TransversalDocScorer scorer = new TransversalDocScorer();
 		PairwiseDocScorerEvaluator<SemanticallyExpandedDoc> fullEvaluator = new PairwiseDocScorerEvaluator<SemanticallyExpandedDoc>(
-				comboScorer, LeeEvalHandler.getInstance(Paths.PINCOMBE_EVAL),
-				Paths.COMBINATION_RANKING_SCORES);
+				scorer, LeeEvalHandler.getInstance(Paths.PINCOMBE_EVAL),
+				Paths.COMBINATION_RANKING_SCORES, "statistics/pairs.csv");
+		// PairwiseDocScorerEvaluator<TransversalExpandedDoc> fullEvaluator =
+		// new PairwiseDocScorerEvaluator<TransversalExpandedDoc>(
+		// scorer, LeeEvalHandler.getInstance(Paths.PINCOMBE_EVAL),
+		// Paths.COMBINATION_RANKING_SCORES, "statistics/pairs.csv");
 		// JSONLoader jsonParser = new JSONLoader(Paths.MOMIJSONOUTPUTPATH);
-		JSONDocSourceLoader jsonParser = new JSONDocSourceLoader(Paths.LEE_ANNOTATED_JSON);// _CORRECTED_JSON);
+		JSONDocSourceLoader jsonParser = new JSONDocSourceLoader(
+				Paths.LEE_ANNOTATED_JSON);// _CORRECTED_JSON);
 		List<AnnotatedDoc> docs = jsonParser.getAllDocs();
 		System.out.println("Documents loaded");
-		comboScorer.expandAndSetCorpus(docs);
+		scorer.expandAndSetCorpus(docs);
 		System.out.println("Documents expanded");
-		System.out.println(fullEvaluator
-				.completePairwisePearsonScore("statistics/pairs.csv"));
+		System.out.println(fullEvaluator.completePairwiseCorrelation());
+		// scorer.printMeanAndVariance();
 	}
+
+	private String csvPairsPath;
 
 	public PairwiseDocScorerEvaluator(PairwiseDocScorer<x> simScorer,
-			EvalHandler evalHandler, String csvRankingsPath) {
+			CorpusEvalHandler evalHandler, String csvRankingsPath,
+			String pairsCSVPath) {
 
 		super(simScorer, evalHandler, csvRankingsPath);
+		this.csvPairsPath = pairsCSVPath;
 	}
 
-	public String completePairwisePearsonScore(String pairsCSVPath) {
+	public String completePairwiseCorrelation() {
 
 		PairwiseDocScorer<x> castedScorer = ((PairwiseDocScorer<x>) scorer);
 		ArrayList<DocPair<x>> docPairs = new ArrayList<DocPair<x>>();
@@ -64,11 +75,11 @@ public class PairwiseDocScorerEvaluator<x extends AnnotatedDoc> extends
 			}
 		}
 		String pears = pearsonScorePairs(docPairs.toArray(new DocPair[] {}),
-				pairsCSVPath);
+				csvPairsPath);
 		return pears;
 	}
 
-	public String pearsonScorePairs(DocPair<x>[] pairs, String pairsCSVPath) {
+	private String pearsonScorePairs(DocPair<x>[] pairs, String pairsCSVPath) {
 
 		ArrayList<Double> algoScores = new ArrayList<Double>();
 		ArrayList<Double> humanScores = new ArrayList<Double>();
@@ -110,9 +121,9 @@ public class PairwiseDocScorerEvaluator<x extends AnnotatedDoc> extends
 		return pearsScore + "," + spearmansScore + "," + harmMean;
 	}
 
-	public void printMeanAndVariance() {
-
-		throw new UnsupportedOperationException();
-	}
+	// public void printMeanAndVariance() {
+	//
+	// throw new UnsupportedOperationException();
+	// }
 
 }

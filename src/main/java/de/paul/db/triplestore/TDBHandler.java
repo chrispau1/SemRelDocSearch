@@ -35,7 +35,7 @@ import de.paul.annotations.SemanticallyExpandedAnnotation;
 import de.paul.annotations.WeightedAnnotation;
 import de.paul.db.DocumentIndex;
 import de.paul.documents.impl.SemanticallyExpandedDoc;
-import de.paul.similarity.entityScorers.CombinedEntityPairScorer.CombineMode;
+import de.paul.util.CombineMode;
 import de.paul.util.Paths;
 
 public class TDBHandler implements DocumentIndex {

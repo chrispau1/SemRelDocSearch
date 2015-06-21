@@ -4,12 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.paul.kb.dbpedia.DBPediaHandler;
+import de.paul.util.Directionality;
 
 public class NormalizedNeighborhoodAnnotation extends NeighborhoodAnnotation {
 
 	public NormalizedNeighborhoodAnnotation(String ent, double weight,
-			DBPediaHandler dbpHandler, int expansionRadius) {
-		super(ent, weight, dbpHandler, expansionRadius);
+			DBPediaHandler dbpHandler, int expansionRadius, Directionality mode) {
+		super(ent, weight, dbpHandler, expansionRadius, mode);
 	}
 
 	public NormalizedNeighborhoodAnnotation(String ent, double weight,

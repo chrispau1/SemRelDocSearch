@@ -13,12 +13,15 @@ import de.paul.documents.AnnotatedDoc;
 import de.paul.kb.dbpedia.DBPediaHandler;
 import de.paul.similarity.entityScorers.TransversalEntityPairScorer;
 import de.paul.similarity.entityScorers.WeightedOverlapEntityPair;
+import de.paul.util.Directionality;
 
 public class NeighborhoodAnnotation extends WeightedAnnotation {
 
 	public enum OverlapWeightsMode {
 		MULT, NONE
 	}
+
+	private Directionality directionality = Directionality.OUTGOING;
 
 	private List<Set<Annotatable>> outNeighborsAtDistance;
 	private Collection<Annotatable> neighbors;
@@ -33,8 +36,10 @@ public class NeighborhoodAnnotation extends WeightedAnnotation {
 	 * @param expansionRadius
 	 */
 	public NeighborhoodAnnotation(String ent, double weight,
-			DBPediaHandler dbpHandler, int expansionRadius) {
+			DBPediaHandler dbpHandler, int expansionRadius, Directionality mode) {
 		super(ent, weight);
+		if (mode != null)
+			this.directionality = mode;
 		// setWeight(1.0);
 		expandAnnotation(dbpHandler, expansionRadius);
 	}
@@ -57,10 +62,11 @@ public class NeighborhoodAnnotation extends WeightedAnnotation {
 				copies.add(n.copy());
 			}
 		}
+		this.directionality = other.directionality;
 		this.setNeighbors(copies);
 	}
 
-	public void expandAnnotation(DBPediaHandler dbpHandler, int expansionRadius) {
+	private void expandAnnotation(DBPediaHandler dbpHandler, int expansionRadius) {
 
 		List<Annotatable> neighborList = new LinkedList<Annotatable>();
 		// get neighbors for i hops away
@@ -80,13 +86,20 @@ public class NeighborhoodAnnotation extends WeightedAnnotation {
 				outEntitySet = outNeighborsAtDistance.get(i - 1);
 				inEntitySet = inNeighborsAtDistance.get(i - 1);
 			}
-			// get neighboring entities
-			Set<Annotatable> oneHopOutNeighbors = dbpHandler
-					.getNeighborsOutEdges(outEntitySet);
-
+			/*
+			 * get neighboring entities via either incoming or outgoing edges,
+			 * or both
+			 */
+			Set<Annotatable> oneHopOutNeighbors;
+			if (directionality == Directionality.OUTGOING
+					|| directionality == Directionality.BIDIRECTIONAL)
+				oneHopOutNeighbors = dbpHandler
+						.getNeighborsOutEdges(outEntitySet);
+			else
+				oneHopOutNeighbors = new HashSet<Annotatable>();
 			Set<Annotatable> oneHopInNeighbors;
-			// don't do that right now
-			if (i == -1)
+			if (directionality == Directionality.INCOMING
+					|| directionality == Directionality.BIDIRECTIONAL)
 				oneHopInNeighbors = dbpHandler.getNeighborsInEdges(inEntitySet);
 			else
 				oneHopInNeighbors = new HashSet<Annotatable>();

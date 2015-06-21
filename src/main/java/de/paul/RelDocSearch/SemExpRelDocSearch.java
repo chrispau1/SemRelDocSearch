@@ -23,6 +23,8 @@ import de.paul.kb.dbpedia.DBPediaHandler;
 import de.paul.kb.dbpedia.categories.WikiCatHierarchyHandler;
 import de.paul.similarity.docScorers.ElasticSearchScorer;
 import de.paul.similarity.docScorers.SemanticallyExpandedDocScorer;
+import de.paul.util.CombineMode;
+import de.paul.util.Directionality;
 import de.paul.util.Paths;
 
 /**
@@ -45,6 +47,8 @@ public class SemExpRelDocSearch extends RelDocSearch {
 	private String elasticSearchIndexName;
 	private int expansionRadius;
 	private int defaultCandidateSetSize;
+	private Directionality edgeDirMode = Directionality.OUTGOING;
+	private CombineMode combineMode = CombineMode.PLUS;
 
 	public SemExpRelDocSearch(String tdbPath, String idxName, String docType,
 			int expRadius, int defaultCandidateSetSize) {
@@ -87,7 +91,8 @@ public class SemExpRelDocSearch extends RelDocSearch {
 	public List<SemanticallyExpandedDoc> getRelatedDocuments(String docType,
 			String id, int candidateSetSize) throws FileNotFoundException {
 
-		SemanticallyExpandedDocScorer comboScorer = new SemanticallyExpandedDocScorer();
+		SemanticallyExpandedDocScorer comboScorer = new SemanticallyExpandedDocScorer(
+				EXPANSION_RADIUS, null, null);
 
 		if (docType == null)
 			docType = defaultESDocType;
@@ -103,7 +108,8 @@ public class SemExpRelDocSearch extends RelDocSearch {
 	}
 
 	@SuppressWarnings("unused")
-	private void prepareDocStore(List<SemanticallyExpandedDoc> expandedCandidates) {
+	private void prepareDocStore(
+			List<SemanticallyExpandedDoc> expandedCandidates) {
 		dbpHandler = DBPediaHandler.getInstance(Paths.TDB_DBPEDIA);
 		hierHandler = WikiCatHierarchyHandler
 				.getInstance(Paths.TDB_DBPEDIA_HIERARCHY);
@@ -115,8 +121,9 @@ public class SemExpRelDocSearch extends RelDocSearch {
 			List<AnnotatedDoc> docs = jsonParser.getAllDocs();
 			long t1 = System.currentTimeMillis();
 			for (AnnotatedDoc simpleDoc : docs) {
-				SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(simpleDoc,
-						EXPANSION_RADIUS, dbpHandler, hierHandler, null);
+				SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(
+						simpleDoc, EXPANSION_RADIUS, dbpHandler, hierHandler,
+						combineMode, edgeDirMode);
 				((SimpleDocumentIndex) this.documentIndex).addDocument(expDoc);
 			}
 			long t2 = System.currentTimeMillis();
@@ -145,7 +152,8 @@ public class SemExpRelDocSearch extends RelDocSearch {
 				// load and expand doc
 				SemanticallyExpandedDoc doc = new SemanticallyExpandedDoc(
 						leeJSONLoader.getDocument(Integer.toString(i)),
-						EXPANSION_RADIUS, dbpHandler, hierHandler, null);
+						EXPANSION_RADIUS, dbpHandler, hierHandler, combineMode,
+						edgeDirMode);
 				System.out.println("Doc " + i + " loaded");
 				// import into ES index
 				importer.addExpandedDocument(doc);
@@ -188,8 +196,9 @@ public class SemExpRelDocSearch extends RelDocSearch {
 				// create expanded doc
 				AnnotatedDoc plainDoc = docSource.getDocument(id);
 				// expand
-				SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(plainDoc,
-						this.expansionRadius, dbpHandler, hierHandler, null);
+				SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(
+						plainDoc, this.expansionRadius, dbpHandler,
+						hierHandler, combineMode, edgeDirMode);
 				/*
 				 * Import into ES
 				 */
@@ -230,8 +239,9 @@ public class SemExpRelDocSearch extends RelDocSearch {
 			List<AnnotatedDoc> docs = jsonParser.getAllDocs();
 			for (AnnotatedDoc plainDoc : docs) {
 				// create expanded doc
-				SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(plainDoc,
-						expRadius, dbpHandler, hierHandler, null);
+				SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(
+						plainDoc, expRadius, dbpHandler, hierHandler,
+						combineMode, edgeDirMode);
 
 				/*
 				 * Import into Docs TDB
@@ -252,8 +262,9 @@ public class SemExpRelDocSearch extends RelDocSearch {
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	public List<SemanticallyExpandedDoc> getRelatedDocuments(AnnotatedDoc newDoc,
-			String docType, int candidateSetSize) throws FileNotFoundException {
+	public List<SemanticallyExpandedDoc> getRelatedDocuments(
+			AnnotatedDoc newDoc, String docType, int candidateSetSize)
+			throws FileNotFoundException {
 
 		String id = this.addDocument(newDoc, docType);
 		return this.getRelatedDocuments(docType, id, candidateSetSize);
@@ -271,8 +282,9 @@ public class SemExpRelDocSearch extends RelDocSearch {
 		TDBHandler docsTDB = TDBHandler.getInstance(tdbPath);
 		try {
 			// expand
-			SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(newDoc,
-					this.expansionRadius, dbpHandler, hierHandler, null);
+			SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(
+					newDoc, this.expansionRadius, dbpHandler, hierHandler,
+					combineMode, edgeDirMode);
 			/*
 			 * Import into ES
 			 */
@@ -298,8 +310,8 @@ public class SemExpRelDocSearch extends RelDocSearch {
 	 */
 	private List<SemanticallyExpandedDoc> getRelatedDocuments(String idxName,
 			String docType, String id, int candidateSetSize,
-			SemanticallyExpandedDocScorer comboScorer, List<AnnotatedDoc> candidateSet)
-			throws FileNotFoundException {
+			SemanticallyExpandedDocScorer comboScorer,
+			List<AnnotatedDoc> candidateSet) throws FileNotFoundException {
 
 		// get candidate set by running ES search
 		// int timeOneIter = 0;
@@ -341,8 +353,9 @@ public class SemExpRelDocSearch extends RelDocSearch {
 									.getDocument(cand.getId()));
 				}
 				// add query doc
-				expandedCandidates.add((SemanticallyExpandedDoc) this.documentIndex
-						.getDocument(id));
+				expandedCandidates
+						.add((SemanticallyExpandedDoc) this.documentIndex
+								.getDocument(id));
 			} else {
 				// expand docs
 				System.out
@@ -353,14 +366,16 @@ public class SemExpRelDocSearch extends RelDocSearch {
 						.getInstance(Paths.TDB_DBPEDIA_HIERARCHY);
 				for (AnnotatedDoc cand : candidateSet) {
 
-					SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(cand,
-							EXPANSION_RADIUS, dbpHandler, hierHandler, null);
+					SemanticallyExpandedDoc expDoc = new SemanticallyExpandedDoc(
+							cand, EXPANSION_RADIUS, dbpHandler, hierHandler,
+							combineMode, edgeDirMode);
 					expandedCandidates.add(expDoc);
 				}
 				// expand query doc and add
 				SemanticallyExpandedDoc expQueryDoc = new SemanticallyExpandedDoc(
 						this.getDocumentFromES(idxName, docType, id),
-						EXPANSION_RADIUS, dbpHandler, hierHandler, null);
+						EXPANSION_RADIUS, dbpHandler, hierHandler, combineMode,
+						edgeDirMode);
 				expandedCandidates.add(expQueryDoc);
 			}
 
@@ -423,7 +438,8 @@ public class SemExpRelDocSearch extends RelDocSearch {
 	// // + annotSum);
 	// }
 
-	private SemanticallyExpandedDoc getDocumentFromTDB(TDBHandler docsTDB, String id) {
+	private SemanticallyExpandedDoc getDocumentFromTDB(TDBHandler docsTDB,
+			String id) {
 
 		return docsTDB.getDocument(id);
 	}
@@ -483,7 +499,7 @@ public class SemExpRelDocSearch extends RelDocSearch {
 	public SemanticallyExpandedDoc createNewDoc(AnnotatedDoc docId) {
 
 		return new SemanticallyExpandedDoc(docId, EXPANSION_RADIUS, dbpHandler,
-				hierHandler);
+				hierHandler, combineMode, edgeDirMode);
 	}
 
 	@Override
@@ -501,7 +517,8 @@ public class SemExpRelDocSearch extends RelDocSearch {
 	@Override
 	public void computeRankingForVariations(String queryDoc) {
 
-		SemanticallyExpandedDocScorer comboScorer = new SemanticallyExpandedDocScorer();
+		SemanticallyExpandedDocScorer comboScorer = new SemanticallyExpandedDocScorer(
+				EXPANSION_RADIUS, null, null);
 
 		ElasticSearchScorer esScorer = new ElasticSearchScorer(
 				elasticSearchIndexName, defaultESDocType,
@@ -510,8 +527,8 @@ public class SemExpRelDocSearch extends RelDocSearch {
 		List<AnnotatedDoc> candSet = esScorer.getRelatedDocuments(queryDoc);
 		List<SemanticallyExpandedDoc> fullSet = new LinkedList<SemanticallyExpandedDoc>();
 		for (AnnotatedDoc elem : candSet) {
-			SemanticallyExpandedDoc fd = new SemanticallyExpandedDoc(elem.getId(),
-					elem.getTitle(), elem.getText(), null);
+			SemanticallyExpandedDoc fd = new SemanticallyExpandedDoc(
+					elem.getId(), elem.getTitle(), elem.getText(), null);
 			fullSet.add(fd);
 		}
 		rankingsPerVariation = new HashMap<Integer, List<SemanticallyExpandedDoc>>();

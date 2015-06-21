@@ -7,9 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import de.paul.corpus.evaluation.EvalHandler;
-import de.paul.corpus.evaluation.RankingEvalHandler;
 import de.paul.documents.AnnotatedDoc;
+import de.paul.evaluation.corpora.CorpusEvalHandler;
+import de.paul.evaluation.corpora.RankingEvalHandler;
 import de.paul.similarity.docScorers.DocumentSimilarityScorer;
 import de.paul.util.TimeKeeper;
 import de.paul.util.statistics.NDCGEvaluator;
@@ -17,12 +17,12 @@ import de.paul.util.statistics.NDCGEvaluator;
 public class DocScorerEvaluator<x extends AnnotatedDoc> {
 
 	protected static final int RESULTS_TO_COMPARE_FACTOR = 2;
-	protected EvalHandler evalHandler;
+	protected CorpusEvalHandler evalHandler;
 	protected DocumentSimilarityScorer<x> scorer;
 	private String rankingsCSVPath;
 
 	public DocScorerEvaluator(DocumentSimilarityScorer<x> scorer,
-			EvalHandler evalHandler, String rankingCSVPath) {
+			CorpusEvalHandler evalHandler, String rankingCSVPath) {
 
 		this.scorer = scorer;
 		this.evalHandler = evalHandler;
@@ -38,7 +38,7 @@ public class DocScorerEvaluator<x extends AnnotatedDoc> {
 	 * 
 	 * @return
 	 */
-	public String csvAllRankingScores() {
+	public String csvAllRankingsScores() {
 
 		String meanString = "";
 		FileWriter fw = null;

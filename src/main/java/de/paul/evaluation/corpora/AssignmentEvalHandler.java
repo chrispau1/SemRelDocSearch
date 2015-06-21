@@ -1,10 +1,10 @@
-package de.paul.corpus.evaluation;
+package de.paul.evaluation.corpora;
 
 import java.io.IOException;
 
 import de.paul.util.Paths;
 
-public class AssignmentEvalHandler extends EvalHandler {
+public class AssignmentEvalHandler extends CorpusEvalHandler {
 
 	protected static AssignmentEvalHandler instance;
 

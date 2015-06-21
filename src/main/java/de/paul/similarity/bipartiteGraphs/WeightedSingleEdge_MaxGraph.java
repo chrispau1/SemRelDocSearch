@@ -4,16 +4,16 @@ import de.paul.annotations.WeightedAnnotation;
 import de.paul.documents.AnnotatedDoc;
 import de.paul.similarity.entityScorers.ScorableEntityPair;
 
-public class WeightedSingleEdge_MWBG extends SingleEdge_MWBG {
+public class WeightedSingleEdge_MaxGraph extends SingleEdge_MaxGraph {
 
 	// public WeightedSingleEdge_MWBG(int annotCount1, int annotCount2) {
 	// super(annotCount1, annotCount2);
-	// }
+	// // }
+	//
+	// private AnnotatedDoc doc1;
+	// private AnnotatedDoc doc2;
 
-	private AnnotatedDoc doc1;
-	private AnnotatedDoc doc2;
-
-	public WeightedSingleEdge_MWBG(AnnotatedDoc doc1, AnnotatedDoc doc2) {
+	public WeightedSingleEdge_MaxGraph(AnnotatedDoc doc1, AnnotatedDoc doc2) {
 		super(doc1.getAnnotations().size(), doc2.getAnnotations().size());
 		this.doc1 = doc1;
 		this.doc2 = doc2;
@@ -33,7 +33,7 @@ public class WeightedSingleEdge_MWBG extends SingleEdge_MWBG {
 		// sum over all edges
 		double numerator = 0;
 		double denominator = 0;
-		for (ScorableEntityPair edge : matchings) {
+		for (ScorableEntityPair edge : edges) {
 
 			// get entity topic score
 			WeightedAnnotation ent1 = edge.getAnnotation();

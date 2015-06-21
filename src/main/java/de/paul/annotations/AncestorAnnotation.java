@@ -32,6 +32,12 @@ public class AncestorAnnotation extends WeightedAnnotation {
 
 		super(entName, entWeight);
 		// get categories
+		setAncestors(expandHierarchically(dbpHandler, hierHandler, entName));
+	}
+
+	private Set<Category> expandHierarchically(DBPediaHandler dbpHandler,
+			WikiCatHierarchyHandler hierHandler, String entName) {
+
 		// long t1 = System.currentTimeMillis();
 		Set<String> cats = dbpHandler.getCategories(entName);
 		// long t2 = System.currentTimeMillis();
@@ -41,7 +47,7 @@ public class AncestorAnnotation extends WeightedAnnotation {
 		Set<Category> ancestors = hierHandler.getAncestors(this, cats);
 		// t2 = System.currentTimeMillis();
 		// TimeKeeper.getInstance().addGetAncestorsTime(t2 - t1);
-		setAncestors(ancestors);
+		return ancestors;
 	}
 
 	public Set<Category> getAncestors() {

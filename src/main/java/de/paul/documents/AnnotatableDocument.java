@@ -15,6 +15,4 @@ public interface AnnotatableDocument {
 	public String getTitle();
 
 	public String getText();
-
-	public String getAnnotationsAsString();
 }

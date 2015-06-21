@@ -1,4 +1,4 @@
-package de.paul.corpus.evaluation;
+package de.paul.evaluation.corpora;
 
 import java.io.IOException;
 import java.util.List;

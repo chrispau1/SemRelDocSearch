@@ -2,10 +2,11 @@ package de.paul.similarity.docScorers;
 
 import de.paul.documents.AnnotatedDoc;
 import de.paul.documents.impl.TransversalExpandedDoc;
-import de.paul.similarity.bipartiteGraphs.SingleEdge_MWBG;
+import de.paul.similarity.bipartiteGraphs.SingleEdge_MaxGraph;
 import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraph;
-import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraph.MWBG_mode;
+import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraph.MaxGraph_mode;
 import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraphImpl;
+import de.paul.util.Directionality;
 import de.paul.util.statistics.StatUtil;
 
 public class TransversalDocScorer extends
@@ -13,11 +14,20 @@ public class TransversalDocScorer extends
 
 	private StatUtil meanMachine;
 
-	private static final int EXPAND_RADIUS = 2; // best: 2
+	private Directionality edgeDirMode = Directionality.OUTGOING;
 
-	public TransversalDocScorer() {
+	private int expansionRadius = 2; // best: 2
+
+	public TransversalDocScorer(Directionality edgeMode, int expRadius) {
 		// objects used for new doc creation
 		super();
+		if (expRadius >= 0 && expRadius < 5)
+			this.expansionRadius = expRadius;
+		else
+			System.err.println("Invalid expansion radius " + expRadius
+					+ " provided. Must be between 0 and 4");
+		if (edgeMode != null)
+			this.edgeDirMode = edgeMode;
 		meanMachine = new StatUtil();
 	}
 
@@ -30,7 +40,8 @@ public class TransversalDocScorer extends
 
 	public TransversalExpandedDoc createNewDoc(AnnotatedDoc doc) {
 
-		return new TransversalExpandedDoc(doc, dbpHandler, EXPAND_RADIUS);
+		return new TransversalExpandedDoc(doc, dbpHandler, expansionRadius,
+				edgeDirMode);
 	}
 
 	@Override
@@ -41,8 +52,8 @@ public class TransversalDocScorer extends
 		// print matrix
 		// printPairwiseEntityScoreMatrix(bipartiteGraph);
 		// do scoring
-		WeightedBipartiteGraph.mwbg_mode = MWBG_mode.SingleEdge;
-		SingleEdge_MWBG se_MWBG = bipartiteGraph.findSingleEdgeMaximumWeight();
+		WeightedBipartiteGraph.mwbg_mode = MaxGraph_mode.SingleEdge;
+		SingleEdge_MaxGraph se_MWBG = bipartiteGraph.computeMaxGraph();
 		double result = se_MWBG.similarityScore();
 		// double result = bipartiteGraph.similarityScore();
 		// System.out.println(result);

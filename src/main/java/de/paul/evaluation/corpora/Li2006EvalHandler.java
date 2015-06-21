@@ -1,10 +1,10 @@
-package de.paul.corpus.evaluation;
+package de.paul.evaluation.corpora;
 
 import java.io.IOException;
 
 import de.paul.util.Paths;
 
-public class Li2006EvalHandler extends EvalHandler {
+public class Li2006EvalHandler extends CorpusEvalHandler {
 
 	protected static Li2006EvalHandler instance;
 

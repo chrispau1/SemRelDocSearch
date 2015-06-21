@@ -19,14 +19,14 @@ import com.hp.hpl.jena.tdb.TDBFactory;
 
 import de.paul.annotations.AncestorAnnotation;
 import de.paul.annotations.Annotatable;
-import de.paul.annotations.SemanticallyExpandedAnnotation;
 import de.paul.annotations.NeighborhoodAnnotation;
 import de.paul.annotations.NeighborhoodAnnotation.OverlapWeightsMode;
+import de.paul.annotations.SemanticallyExpandedAnnotation;
 import de.paul.annotations.WeightedAnnotation;
 import de.paul.kb.TransversalKnowledgeBase;
 import de.paul.kb.dbpedia.categories.WikiCatHierarchyHandler;
 import de.paul.similarity.entityScorers.CombinedEntityPairScorer;
-import de.paul.similarity.entityScorers.CombinedEntityPairScorer.CombineMode;
+import de.paul.util.CombineMode;
 import de.paul.util.Paths;
 import de.paul.util.SumMap;
 
@@ -44,7 +44,7 @@ public class DBPediaHandler implements TransversalKnowledgeBase {
 	// redirect predicate
 	private static final String WIKI_REDIRECT = "<http://dbpedia.org/ontology/wikiPageRedirects>";
 	protected static final double BETA = 0.5;
-	private static final int PAGERANK_MAX = 50;
+	private static final int PAGERANK_MAX = 5;
 	// used to distinguish between hierarchical predicates and transversal ones
 	// within DBPedia
 	protected final HashSet<String> HIERARCH_PREDS = new HashSet<String>(
@@ -64,9 +64,9 @@ public class DBPediaHandler implements TransversalKnowledgeBase {
 		 */
 		String entity2 = "http://dbpedia.org/resource/Gregg_Popovich";
 		NeighborhoodAnnotation e1a = new NeighborhoodAnnotation(entity, 1.0,
-				handler, 2);
+				handler, 2, null);
 		NeighborhoodAnnotation e2a = new NeighborhoodAnnotation(entity2, 1.0,
-				handler, 2);
+				handler, 2, null);
 		Set<Annotatable> res = e1a.overlap(e2a, OverlapWeightsMode.MULT);
 		for (Annotatable ann2 : res) {
 			System.out.println(ann2.getEntity());
@@ -90,7 +90,7 @@ public class DBPediaHandler implements TransversalKnowledgeBase {
 			e.printStackTrace();
 		}
 		CombinedEntityPairScorer entPairScorer = new CombinedEntityPairScorer(
-				e1, e2, CombineMode.PLUS);
+				e1, e2, de.paul.util.CombineMode.PLUS);
 		entPairScorer.setLeft();
 		System.out.println(entPairScorer.score());
 		entPairScorer.setRight();
@@ -316,9 +316,15 @@ public class DBPediaHandler implements TransversalKnowledgeBase {
 	public Set<Annotatable> getNeighborsInEdges(
 			Collection<? extends Annotatable> inEntities) {
 
+		return getNeighborsInEdges(inEntities, PAGERANK_MAX);
+	}
+
+	public Set<Annotatable> getNeighborsInEdges(
+			Collection<? extends Annotatable> inEntities, int maxPageRank) {
+
 		Set<Annotatable> redirectedInEntities = getRedirectedEntities(inEntities);
 		Set<Annotatable> filteredEnts = filterExpandableEntities(
-				redirectedInEntities, PAGERANK_MAX);
+				redirectedInEntities, maxPageRank);
 		Set<Annotatable> inComing = getTransversalNeighbors(filteredEnts,
 				buildInEdgesTransversalQuery(filteredEnts));
 		return inComing;

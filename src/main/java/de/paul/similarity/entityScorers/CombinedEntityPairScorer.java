@@ -1,13 +1,10 @@
 package de.paul.similarity.entityScorers;
 
 import de.paul.annotations.SemanticallyExpandedAnnotation;
+import de.paul.util.CombineMode;
 
 public class CombinedEntityPairScorer implements
 		ScorableEntityPair<SemanticallyExpandedAnnotation> {
-
-	public enum CombineMode {
-		MAX, PLUS, MULT;
-	};
 
 	private CombineMode combineMode = CombineMode.PLUS;
 	private SemanticallyExpandedAnnotation leftAnn;
@@ -23,9 +20,15 @@ public class CombinedEntityPairScorer implements
 	// private final double TAXON_VAR = 0.005312166344853058;
 
 	// RADIUS: 2
-	private final double TRANS_MEAN = 0.028002799231326602;
+	// private final double TRANS_MEAN = 0.028002799231326602;
+	// private final double TAXON_MEAN = 0.1406030306728683;
+	// private final double TRANS_VAR = 0.0023979329049633132;
+	// private final double TAXON_VAR = 0.005312166344853058;
+
+	// RADIUS: 2 in-edges
+	private final double TRANS_MEAN = 0.08368626085799954;
 	private final double TAXON_MEAN = 0.1406030306728683;
-	private final double TRANS_VAR = 0.0023979329049633132;
+	private final double TRANS_VAR = 0.00554696170646718;
 	private final double TAXON_VAR = 0.005312166344853058;
 
 	// RADIUS: 3

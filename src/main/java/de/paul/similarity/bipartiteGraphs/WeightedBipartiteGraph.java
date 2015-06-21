@@ -11,33 +11,33 @@ import de.paul.similarity.entityScorers.ScorableEntityPair;
 
 public abstract class WeightedBipartiteGraph {
 
-	public enum MWBG_mode {
+	public enum MaxGraph_mode {
 		SingleEdge, WeightedSingleEdge
 	};
 
-	public static MWBG_mode mwbg_mode = MWBG_mode.SingleEdge;
+	public static MaxGraph_mode mwbg_mode = MaxGraph_mode.SingleEdge;
 
-	protected List<ScorableEntityPair> matchings;
+	protected List<ScorableEntityPair> edges;
 	protected int annotCount1;
 	protected int annotCount2;
 
 	protected AnnotatedDoc doc2;
 	protected AnnotatedDoc doc1;
 
-	public void addMatching(ScorableEntityPair matching) {
+	public void addEdge(ScorableEntityPair edge) {
 
-		if (matchings == null) {
-			matchings = new LinkedList<ScorableEntityPair>();
+		if (edges == null) {
+			edges = new LinkedList<ScorableEntityPair>();
 		}
-		matchings.add(matching);
+		edges.add(edge);
 	}
 
 	public List<ScorableEntityPair> getMatchings() {
-		return matchings;
+		return edges;
 	}
 
 	public void setMatchings(List<ScorableEntityPair> matchings) {
-		this.matchings = matchings;
+		this.edges = matchings;
 	}
 
 	public abstract double similarityScore()
@@ -76,7 +76,7 @@ public abstract class WeightedBipartiteGraph {
 		HashMap<String, Integer> map2 = mapEntsToNumbers(ans2);
 		// fill array with scores
 		double[][] scores = new double[ans1.size()][ans2.size()];
-		for (ScorableEntityPair m : matchings) {
+		for (ScorableEntityPair m : edges) {
 			String e1 = m.getAnnotation().getEntity();
 			String e2 = m.getAnnotation2().getEntity();
 			Integer i1 = map1.get(e1);
@@ -136,15 +136,15 @@ public abstract class WeightedBipartiteGraph {
 		return map;
 	}
 
-	public static SingleEdge_MWBG produce_MWBG(AnnotatedDoc doc1,
+	public static SingleEdge_MaxGraph produce_WBG(AnnotatedDoc doc1,
 			AnnotatedDoc doc2) {
 
-		if (mwbg_mode == MWBG_mode.SingleEdge)
+		if (mwbg_mode == MaxGraph_mode.SingleEdge)
 			// return new SingleEdge_MWBG(doc1.getAnnotations().size(), doc2
 			// .getAnnotations().size());
-			return new SingleEdge_MWBG(doc1, doc2);
-		else if (mwbg_mode == MWBG_mode.WeightedSingleEdge)
-			return new WeightedSingleEdge_MWBG(doc1, doc2);
+			return new SingleEdge_MaxGraph(doc1, doc2);
+		else if (mwbg_mode == MaxGraph_mode.WeightedSingleEdge)
+			return new WeightedSingleEdge_MaxGraph(doc1, doc2);
 		return null;
 	}
 }

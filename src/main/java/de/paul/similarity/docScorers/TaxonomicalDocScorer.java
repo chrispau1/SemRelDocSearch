@@ -6,11 +6,11 @@ import java.util.List;
 import de.paul.documents.AnnotatedDoc;
 import de.paul.documents.impl.TaxonomicExpandedDoc;
 import de.paul.kb.dbpedia.categories.WikiCatHierarchyHandler;
-import de.paul.similarity.bipartiteGraphs.SingleEdge_MWBG;
+import de.paul.similarity.bipartiteGraphs.SingleEdge_MaxGraph;
 import de.paul.similarity.bipartiteGraphs.TaxonomicScoring;
 import de.paul.similarity.bipartiteGraphs.TaxonomicScoring.ScoreMode;
 import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraph;
-import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraph.MWBG_mode;
+import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraph.MaxGraph_mode;
 import de.paul.similarity.bipartiteGraphs.WeightedBipartiteGraphImpl;
 import de.paul.util.Paths;
 import de.paul.util.statistics.StatUtil;
@@ -85,16 +85,16 @@ public class TaxonomicalDocScorer extends
 	@Override
 	public void computeRankingForVariations(String queryDoc) {
 
-		WeightedBipartiteGraph.mwbg_mode = MWBG_mode.SingleEdge;
+		WeightedBipartiteGraph.mwbg_mode = MaxGraph_mode.SingleEdge;
 		TaxonomicScoring.mode = ScoreMode.dtax;
 		List<TaxonomicExpandedDoc> results0 = getRelatedDocuments(queryDoc);
-		WeightedBipartiteGraph.mwbg_mode = MWBG_mode.SingleEdge;
+		WeightedBipartiteGraph.mwbg_mode = MaxGraph_mode.SingleEdge;
 		TaxonomicScoring.mode = ScoreMode.dps;
 		List<TaxonomicExpandedDoc> results1 = getRelatedDocuments(queryDoc);
-		WeightedBipartiteGraph.mwbg_mode = MWBG_mode.WeightedSingleEdge;
+		WeightedBipartiteGraph.mwbg_mode = MaxGraph_mode.WeightedSingleEdge;
 		TaxonomicScoring.mode = ScoreMode.dtax;
 		List<TaxonomicExpandedDoc> results2 = getRelatedDocuments(queryDoc);
-		WeightedBipartiteGraph.mwbg_mode = MWBG_mode.WeightedSingleEdge;
+		WeightedBipartiteGraph.mwbg_mode = MaxGraph_mode.WeightedSingleEdge;
 		TaxonomicScoring.mode = ScoreMode.dps;
 		List<TaxonomicExpandedDoc> results3 = getRelatedDocuments(queryDoc);
 		rankingsPerVariation = new HashMap<Integer, List<TaxonomicExpandedDoc>>();
@@ -115,7 +115,7 @@ public class TaxonomicalDocScorer extends
 
 		WeightedBipartiteGraphImpl bipartiteGraph = new WeightedBipartiteGraphImpl(
 				doc1, doc2);
-		SingleEdge_MWBG se_MWBG = bipartiteGraph.findSingleEdgeMaximumWeight();
+		SingleEdge_MaxGraph se_MWBG = bipartiteGraph.computeMaxGraph();
 		// print matrix
 		if (doc1.getId().equals("8") && doc2.getId().equals("46"))
 			printPairwiseEntityScoreMatrix(bipartiteGraph);
